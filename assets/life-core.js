@@ -747,9 +747,10 @@ async function initFlightMap() {
   if (flightMap.loaded) return; // 已初始化：只装一次坐标库和按钮绑定
   try {
     const [airports, world, trip] = await Promise.all([
-      fetch('/assets/airport-geo.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
-      fetch('/assets/world-geo.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
-      fetch('/assets/trip-data.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
+      // 相对路径：GitHub Pages 部署在 /<repo>/ 子路径下，绝对路径 /assets 会 404
+      fetch('assets/airport-geo.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
+      fetch('assets/world-geo.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
+      fetch('assets/trip-data.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     ]);
     airports.forEach((airport) => {
       flightMap.byCode[airport.code] = airport;
@@ -771,8 +772,9 @@ async function initFlightMap() {
     renderManualCityChips();
     wrap.classList.remove('hidden');
     // 地图渲染已由 initFootprintMap 接管（ECharts 版）
-  } catch {
-    // 底图/机场数据缺失时静默隐藏地图，不影响其余板块
+  } catch (err) {
+    // 底图/机场数据缺失时静默隐藏地图，不影响其余板块；但要留痕，别再静默吞错
+    console.error('[initFlightMap] 初始化失败：', err);
     wrap.classList.add('hidden');
   }
 }
