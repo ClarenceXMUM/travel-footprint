@@ -802,8 +802,10 @@ h4 {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, rgba(148, 170, 220, 0.10), rgba(12, 16, 34, 0.55));
-  border: 1px solid rgba(148, 170, 220, 0.14);
+  position: relative;
+  /* logo 本身透明，容器只留一圈很淡的边，不抢品牌色 */
+  background: radial-gradient(circle at 50% 45%, rgba(148, 170, 220, 0.09), rgba(10, 14, 28, 0.35));
+  border: 1px solid rgba(148, 170, 220, 0.10);
   overflow: hidden;
 }
 
@@ -811,12 +813,9 @@ h4 {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 14px;
+  padding: 8px;
+  display: block;
   box-sizing: border-box;
-}
-
-.al-logo-img {
-  filter: drop-shadow(0 8px 18px rgba(1, 3, 12, 0.55));
 }
 
 .airline-card:hover .al-logo {
@@ -824,23 +823,14 @@ h4 {
 }
 
 .airline-card[data-status='none'] .al-logo {
-  filter: grayscale(0.85) brightness(0.72);
+  /* 未乘坐只轻微压暗，保留品牌色（灰化太重会把 logo 压成灰块） */
+  filter: brightness(0.9) saturate(0.92);
+  opacity: 0.82;
 }
 
-.airline-card[data-status='economy'] .al-logo {
-  filter: drop-shadow(0 0 16px rgba(90, 162, 255, 0.45));
-}
-
-.airline-card[data-status='premium'] .al-logo {
-  filter: drop-shadow(0 0 18px rgba(45, 212, 191, 0.5));
-}
-
-.airline-card[data-status='business'] .al-logo {
-  filter: drop-shadow(0 0 20px rgba(245, 196, 81, 0.55));
-}
-
-.airline-card[data-status='first'] .al-logo {
-  filter: drop-shadow(0 0 24px rgba(196, 141, 253, 0.7)) drop-shadow(0 0 12px rgba(245, 196, 81, 0.4));
+/* 点亮：光只有卡片边框 + 顶部光条一层（logo 本身不再发光，避免糊成一团） */
+.airline-card:not([data-status='none']) .al-logo {
+  filter: brightness(1.04) saturate(1.06);
 }
 
 .al-info {
