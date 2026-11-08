@@ -59,6 +59,7 @@ const AIRLINES = [
   { id: 'csouthern',    name: '中国南方航空', en: 'China Southern',     iata: 'CZ', pfx: 'CZ', home: '中国·广州' },
   { id: 'ceastern',     name: '中国东方航空', en: 'China Eastern',      iata: 'MU', pfx: 'MU', home: '中国·上海' },
   { id: 'airchina',     name: '中国国际航空', en: 'Air China',          iata: 'CA', pfx: 'CA', home: '中国·北京' },
+  { id: 'shanghai',     name: '上海航空',     en: 'Shanghai Airlines',  iata: 'FM', pfx: 'FM', home: '中国·上海' },
   { id: 'cathay',       name: '国泰航空',     en: 'Cathay Pacific',     iata: 'CX', pfx: 'CX', home: '中国香港' },
   { id: 'thai',         name: '泰国国际航空', en: 'Thai Airways',       iata: 'TG', pfx: 'TG', home: '泰国' },
   { id: 'bangkok',      name: '曼谷航空',     en: 'Bangkok Airways',    iata: 'PG', pfx: 'PG', home: '泰国' },
@@ -72,14 +73,16 @@ const AIRLINES = [
   { id: 'chinaairlines', name: '中华航空',     en: 'China Airlines',     iata: 'CI', pfx: 'CI', home: '中国·台湾' },
   { id: 'starlux',      name: '星宇航空',     en: 'STARLUX Airlines',    iata: 'JX', pfx: 'JX', home: '中国·台湾' },
   { id: 'batik',        name: '峇迪航空',     en: 'Batik Air',           iata: 'ID', pfx: 'ID', home: '印尼' },
+  { id: 'transnusa',    name: '翎亚航空',     en: 'TransNusa',           iata: '8B', pfx: '8B', home: '印尼' },
   { id: 'firefly',      name: '飞萤航空',     en: 'Firefly',             iata: 'FY', pfx: 'FY', home: '马来西亚' },
   { id: 'citilink',     name: '连城航空',     en: 'Citilink',            iata: 'QG', pfx: 'QG', home: '印尼' },
   { id: 'palexpress',   name: '菲航快运',     en: 'PAL Express',         iata: '2P', pfx: '2P', home: '菲律宾' },
   { id: 'hkexpress',    name: '香港快运',     en: 'HK Express',          iata: 'UO', pfx: 'UO', home: '中国香港' },
   { id: 'tigerair',     name: '台湾虎航',     en: 'Tigerair Taiwan',     iata: 'IT', pfx: 'IT', home: '中国·台湾' },
-  { id: 'nokair',       name: '皇雀航空',     en: 'Nok Air',             iata: 'DD', pfx: 'DD', home: '泰国' },
   { id: 'royalbrunei',  name: '文莱皇家航空', en: 'Royal Brunei',        iata: 'BI', pfx: 'BI', home: '文莱' },
   { id: 'laoairlines',  name: '老挝航空',     en: 'Lao Airlines',        iata: 'QV', pfx: 'QV', home: '老挝' },
+  { id: 'klm',          name: '荷兰皇家航空', en: 'KLM',                 iata: 'KL', pfx: 'KL', home: '荷兰' },
+  { id: 'srilankan',    name: '斯里兰卡航空', en: 'SriLankan Airlines',  iata: 'UL', pfx: 'UL', home: '斯里兰卡' },
 ];
 
 /* ── 航司品牌徽标：品牌渐变色 + 特征图形 + IATA 代码（纯内嵌 SVG，离线可用） ── */
