@@ -1,4 +1,10 @@
-/* 旅行足迹 · 数据与航司卡片层（自 hermes-dashboard app.js 抽离，纯 localStorage，无后端）*/
+/* 旅行足迹 · 数据与航司卡片层（自 hermes-dashboard app.js 抽离，纯 localStorage，无后端）
+ *
+ * ⚠️ 改这个文件之前，先读项目根目录的 PROJECT.md
+ *    §一 增删航司（AIRLINES 字段 / 顺序 / 命名冲突）
+ *    §二 logo 素材（源优先级 / 抠底 / 矢量化 / 哪些不能去底）
+ *    §三 交互逻辑（徽章=打开记录弹窗，不是升档；form.reset 会重置 select）
+ */
 
 const state = { toastTimer: null };
 
@@ -75,7 +81,6 @@ const AIRLINES = [
   { id: 'transnusa',    name: '翎亚航空',     en: 'TransNusa',           iata: '8B', pfx: '8B', home: '印尼' },
   { id: 'firefly',      name: '飞萤航空',     en: 'Firefly',             iata: 'FY', pfx: 'FY', home: '马来西亚' },
   { id: 'citilink',     name: '连城航空',     en: 'Citilink',            iata: 'QG', pfx: 'QG', home: '印尼' },
-  { id: 'palexpress',   name: '菲律宾航空快运', en: 'PAL Express',       iata: '2P', pfx: '2P', home: '菲律宾' },
   { id: 'hkexpress',    name: '香港快运',     en: 'HK Express',          iata: 'UO', pfx: 'UO', home: '中国香港' },
   { id: 'royalbrunei',  name: '文莱皇家航空', en: 'Royal Brunei',        iata: 'BI', pfx: 'BI', home: '文莱' },
   { id: 'laoairlines',  name: '老挝航空',     en: 'Lao Airlines',        iata: 'QV', pfx: 'QV', home: '老挝' },
