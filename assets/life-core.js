@@ -185,7 +185,7 @@ const AIRLINE_LOGO_SVG = new Set(['shanghai']);
 /* ── airlineLogoSvg ── */
 function airlineLogoSvg(airline) {
   const ext = AIRLINE_LOGO_SVG.has(airline.id) ? 'svg' : 'png';
-  return `<img class="al-logo-img" src="assets/airlines/${airline.id}.${ext}" alt="${escapeHtml(airline.en)} logo" loading="lazy" draggable="false">`;
+  return `<img class="al-logo-img" src="assets/airlines/${airline.id}.${ext}" alt="${escapeHtml(airline.en)} logo" decoding="async" draggable="false">`;
 }
 
 /* ── flightRecordsKey ── */
