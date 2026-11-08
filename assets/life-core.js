@@ -179,10 +179,13 @@ const AIRLINE_GLYPHS = {
     <path d="M33 63 Q47 47 62 33" stroke="rgba(6,12,30,.3)" stroke-width="3" fill="none" stroke-linecap="round"/>`,
 };
 
+/* ── 用矢量 SVG 的航司（其余走本地 png）── */
+const AIRLINE_LOGO_SVG = new Set(['shanghai']);
+
 /* ── airlineLogoSvg ── */
 function airlineLogoSvg(airline) {
-  // 真实航司图形 icon（Google Flights CDN，本地离线）
-  return `<img class="al-logo-img" src="assets/airlines/${airline.id}.png" alt="${escapeHtml(airline.en)} logo" loading="lazy" draggable="false">`;
+  const ext = AIRLINE_LOGO_SVG.has(airline.id) ? 'svg' : 'png';
+  return `<img class="al-logo-img" src="assets/airlines/${airline.id}.${ext}" alt="${escapeHtml(airline.en)} logo" loading="lazy" draggable="false">`;
 }
 
 /* ── flightRecordsKey ── */
