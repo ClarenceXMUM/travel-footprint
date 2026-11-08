@@ -187,6 +187,7 @@ function renderFootprintMap(fit) {
 // ── 右侧面板：飞行报告 + 成就 + 常坐航司 + 高频航线 + 最近航班 ──
 function fmBuildStats() {
   const flights = fmBuildFlights();
+  const allRecords = (typeof life !== 'undefined' ? life.records : []) || [];
   const airports = new Set();
   const countries = new Set();
   const cabinMap = { economy: 0, premium: 0, business: 0, first: 0 };
@@ -195,6 +196,10 @@ function fmBuildStats() {
   const airlineMap = {};
   const airportMap = {};
   let totalKm = 0;
+  // 舱位统计按「所有乘坐记录」算（含只有舱位、还没补航线的那部分）
+  allRecords.forEach((r) => {
+    if (cabinMap[r.cabin] !== undefined) cabinMap[r.cabin] += 1;
+  });
   flights.forEach((f) => {
     airports.add(f.from);
     airports.add(f.to);
@@ -202,7 +207,6 @@ function fmBuildStats() {
     const ta = FPMap.airportByCode[f.to];
     if (fa && fa.country) countries.add(fa.country);
     if (ta && ta.country) countries.add(ta.country);
-    if (cabinMap[f.cabin] !== undefined) cabinMap[f.cabin] += 1;
     const y = f.date.slice(0, 4);
     yearMap[y] = (yearMap[y] || 0) + 1;
     const key = [f.from, f.to].sort().join('-');
@@ -215,7 +219,8 @@ function fmBuildStats() {
   const cabinTotal = cabinMap.economy + cabinMap.premium + cabinMap.business + cabinMap.first;
   const businessPct = cabinTotal ? Math.round(((cabinMap.business + cabinMap.first) / cabinTotal) * 100) : 0;
   return {
-    flights, airports: [...airports], countries: [...countries], cabinMap, yearMap,
+    flights, rides: allRecords.length,
+    airports: [...airports], countries: [...countries], cabinMap, yearMap,
     routeMap, airlineMap, airportMap, totalKm, businessPct,
     topRoute: Object.entries(routeMap).sort((a, b) => b[1] - a[1])[0],
   };
@@ -233,7 +238,7 @@ function fmRenderSideStats() {
 
   // ── 飞行报告 ──
   reportEl.innerHTML = [
-    { num: stats.flights.length, label: '飞行次数' },
+    { num: stats.rides, label: '飞行次数' },
     { num: stats.airports.length, label: '足迹机场' },
     { num: stats.countries.length, label: '覆盖国家/地区' },
     { num: (stats.totalKm / 10000).toFixed(1), label: '累计里程(万km)' },
@@ -248,8 +253,8 @@ function fmRenderSideStats() {
   if (achEl) {
     const flights = stats.flights;
     const defs = [
-      { icon: 'plane', name: '人生首飞', desc: '开启飞行生涯', earned: flights.length > 0, detail: flights[0] ? `${flights[0].date} ${flights[0].fromCity} → ${flights[0].toCity}` : '记录第一条航班' },
-      { icon: 'ten', name: '十次飞行', desc: '累计飞行 10 次', earned: flights.length >= 10, detail: flights.length >= 10 ? `已飞 ${flights.length} 次` : `还差 ${10 - flights.length} 次` },
+      { icon: 'plane', name: '人生首飞', desc: '开启飞行生涯', earned: stats.rides > 0, detail: flights[0] ? `${flights[0].date} ${flights[0].fromCity} → ${flights[0].toCity}` : '记录第一条航班' },
+      { icon: 'ten', name: '十次飞行', desc: '累计飞行 10 次', earned: stats.rides >= 10, detail: stats.rides >= 10 ? `已飞 ${stats.rides} 次` : `还差 ${10 - stats.rides} 次` },
       { icon: 'globe', name: '跨洲达人', desc: '飞行覆盖 2+ 大洲', earned: stats.countries.length >= 2, detail: `覆盖 ${stats.countries.length} 个国家/地区` },
       { icon: 'ruler', name: '万里长航', desc: '单次飞行 5000km+', earned: flights.some((f) => f.distanceKm >= 5000), detail: flights.some((f) => f.distanceKm >= 5000) ? `最远 ${Math.round(Math.max(...flights.map((f) => f.distanceKm)))}km` : '挑战跨洋航线' },
       { icon: 'seat', name: '升舱体验', desc: '坐过商务/头等舱', earned: stats.cabinMap.business + stats.cabinMap.first > 0, detail: `商务+头等 ${stats.cabinMap.business + stats.cabinMap.first} 次` },

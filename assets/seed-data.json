@@ -1,0 +1,10 @@
+{
+  "app": "travel-footprint",
+  "exportedAt": "2026-11-09T00:00:00.000Z",
+  "keys": {
+    "hermes.life.flightRecords.v1": "[{\"id\":\"msvs3oerna0r9\",\"airline\":\"airasia\",\"date\":\"2026-05-01\",\"from\":\"KUL\",\"to\":\"TPE\",\"flightNo\":\"D7378\",\"aircraft\":\"A330-300\",\"cabin\":\"economy\"},{\"id\":\"msvs4es6mzek7\",\"airline\":\"airasia\",\"date\":\"2026-05-04\",\"from\":\"TPE\",\"to\":\"KUL\",\"flightNo\":\"D7379\",\"aircraft\":\"A330-300\",\"cabin\":\"economy\"},{\"id\":\"msvs5yi2ieqx2\",\"airline\":\"xiamen\",\"date\":\"2025-09-17\",\"from\":\"FOC\",\"to\":\"KUL\",\"flightNo\":\"MF897\",\"aircraft\":\"B737\",\"cabin\":\"economy\"},{\"id\":\"msvs73zx3r4u0\",\"airline\":\"xiamen\",\"date\":\"2026-01-22\",\"from\":\"KUL\",\"to\":\"FOC\",\"flightNo\":\"MF898\",\"aircraft\":\"B737\",\"cabin\":\"economy\"},{\"id\":\"msvs7sr4zl9tw\",\"airline\":\"xiamen\",\"date\":\"2026-02-27\",\"from\":\"FOC\",\"to\":\"KUL\",\"flightNo\":\"MF897\",\"aircraft\":\"B737\",\"cabin\":\"economy\"},{\"id\":\"msvseesdz2vmt\",\"airline\":\"scoot\",\"date\":\"2026-08-05\",\"from\":\"SIN\",\"to\":\"FOC\",\"flightNo\":\"TR174\",\"aircraft\":\"A320-neo\",\"cabin\":\"economy\"},{\"id\":\"msvsertrhc4pc\",\"airline\":\"scoot\",\"date\":\"2026-08-04\",\"from\":\"PEN\",\"to\":\"SIN\",\"flightNo\":\"TR431\",\"aircraft\":\"A320-neo\",\"cabin\":\"economy\"},{\"id\":\"msvskrnpwvike\",\"airline\":\"batik\",\"date\":\"2026-04-01\",\"from\":\"KUL\",\"to\":\"DPS\",\"flightNo\":\"OD193\",\"aircraft\":\"B737\",\"cabin\":\"economy\"},{\"id\":\"msvsli8pwouy5\",\"airline\":\"batik\",\"date\":\"2026-04-05\",\"from\":\"DPS\",\"to\":\"KUL\",\"flightNo\":\"OD178\",\"aircraft\":\"A330-300\",\"cabin\":\"economy\"},{\"id\":\"msvsrioy3yoq3\",\"airline\":\"firefly\",\"date\":\"2026-07-30\",\"from\":\"SZB\",\"to\":\"PEN\",\"flightNo\":\"FY1440\",\"aircraft\":\"ATR72\",\"cabin\":\"economy\"}]",
+    "hermes.life.manualCities.v1": "[\"贵阳\",\"凯里\",\"衢州\",\"杭州\",\"上海\",\"苏州\",\"大同\",\"厦门\",\"宁波\",\"绍兴\",\"黄山\",\"宁德\"]",
+    "hermes.life.airlineStatus.v1": "{}"
+  },
+  "note": "从本机 Hermes 驾驶舱（localhost:8899）导出的真实足迹数据，作为独立站首次打开的默认数据"
+}

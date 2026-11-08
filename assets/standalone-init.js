@@ -65,7 +65,26 @@ function tmImportData(file) {
   reader.readAsText(file);
 }
 
-function tmInit() {
+/* 首次打开（浏览器里还没有任何足迹数据）时，用内置 assets/seed-data.json 初始化，
+   这样换浏览器 / 换设备 / 清过缓存也能看到已有记录。手动清空后不会再复活：
+   只要 localStorage 里存在任一 hermes.life.* 键就跳过。 */
+function tmSeedIfEmpty() {
+  const hasAny = TM_KEYS.some((k) => localStorage.getItem(k) !== null);
+  if (hasAny) return Promise.resolve(false);
+  return fetch('assets/seed-data.json', { cache: 'no-cache' })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      if (!data || !data.keys) return false;
+      TM_KEYS.forEach((k) => {
+        if (typeof data.keys[k] === 'string') localStorage.setItem(k, data.keys[k]);
+      });
+      return true;
+    })
+    .catch(() => false);
+}
+
+async function tmInit() {
+  await tmSeedIfEmpty();
   loadLife();
   initFlightDatalists();
   initAirlineSelect();

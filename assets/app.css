@@ -1229,6 +1229,13 @@ h4 {
   border-radius: var(--radius-sm);
   background: rgba(16, 22, 46, 0.5);
   font-size: 12px;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms;
+}
+
+.flight-record:hover {
+  border-color: var(--border-strong, rgba(110, 168, 255, .5));
+  background: rgba(24, 34, 66, 0.6);
 }
 
 .fr-date {
@@ -1282,6 +1289,12 @@ h4 {
   border: 1px solid rgba(196, 141, 253, 0.5);
   color: #d8b4fe;
 }
+
+.fr-route-empty {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--muted);
+  opacity: .8;
 }
 
 .fr-del {

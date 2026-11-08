@@ -292,6 +292,7 @@ const life = {
   records: [],
   manual: {},
   activeAirline: null,
+  editingId: null,
 };
 
 /* ── loadLife ── */
@@ -424,7 +425,7 @@ function renderAirlineGrid() {
     card.className = 'airline-card';
     card.dataset.status = status;
     card.style.setProperty('--i', index);
-    card.title = '点击记录航班';
+    card.title = '点击筛选该航司的航线（再点取消）';
     card.innerHTML = `
       <div class="al-logo">${airlineLogoSvg(airline)}</div>
       <div class="al-info">
@@ -432,7 +433,7 @@ function renderAirlineGrid() {
         <div class="al-en">${escapeHtml(airline.en)} · ${escapeHtml(airline.home)}</div>
         <div class="al-meta">${escapeHtml(meta)}</div>
       </div>
-      <button class="al-badge ${status}" type="button" title="点击切换：未乘坐 → 经济舱 → 超级经济舱 → 商务舱 → 头等舱">${airlineStatusText[status]}</button>
+      <button class="al-badge ${status}" type="button" title="点一下 = 记一次乘坐：经济舱 → 超级经济舱 → 商务舱 → 头等舱">${airlineStatusText[status]}</button>
     `;
 
     card.addEventListener('click', () => {
@@ -461,28 +462,39 @@ function renderAirlineGrid() {
   });
 }
 
-/* ── cycleAirlineStatus ── */
+/* ── cycleAirlineStatus ──
+   点徽章 = 真的新增一条乘坐记录（不是只改个颜色）：
+   档位沿 经济 → 超经 → 商务 → 头等 递进，每点一次写入一条 life.records，
+   航司亮度由所有记录里的最高舱位决定。快速记录不带航线（仅舱位点亮），
+   之后可在「＋ 记录航班」弹窗里补完整航线。*/
 function cycleAirlineStatus(airlineId) {
   const airline = AIRLINES.find((item) => item.id === airlineId);
   if (!airline) return;
 
-  if (airlineRecords(airlineId).length) {
-    showToast(`${airline.name} 已有航班记录，状态由记录自动决定`, 'info');
+  const current = airlineStatus(airlineId);
+  const nextIndex = current === 'none' ? 0 : CABIN_ORDER.indexOf(current) + 1;
+
+  if (nextIndex >= CABIN_ORDER.length) {
+    showToast(`${airline.name} 已是最高档 · 打开弹窗可补充航线`, 'info');
     openFlightModal(airlineId);
     return;
   }
 
-  const order = ['none', ...CABIN_ORDER];
-  const current = life.manual[airlineId] || 'none';
-  const next = order[(order.indexOf(current) + 1) % order.length];
-  if (next === 'none') {
-    delete life.manual[airlineId];
-  } else {
-    life.manual[airlineId] = next;
-  }
+  const cabin = CABIN_ORDER[nextIndex];
+  life.records.push({
+    id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
+    airline: airlineId,
+    date: localDateString(new Date()),
+    from: '',
+    to: '',
+    flightNo: '',
+    aircraft: '',
+    cabin,
+    quick: true,
+  });
   saveLife();
   renderLifePage();
-  showToast(`${airline.name} · ${airlineStatusText[next]}`, next === 'none' ? 'info' : 'ok');
+  showToast(`${airline.name} · 新增 1 次${cabinText[cabin]}乘坐`, 'ok');
 }
 
 /* ── renderRecentFlights ── */
@@ -546,7 +558,11 @@ function openFlightModal(airlineId) {
 
   document.getElementById('flightModalTitle').innerHTML = `${icon('plane', 16)} ${escapeHtml(airline.name)} · ${escapeHtml(airline.en)}`;
   const form = document.getElementById('flightForm');
-  form.reset();
+  form.reset();                       // ← reset 会把航司下拉重置成第一项，下面必须再设一次
+  if (picker) picker.value = airline.id;
+  life.editingId = null;
+  const resetSubmitBtn = form.querySelector('button[type="submit"]');
+  if (resetSubmitBtn) resetSubmitBtn.textContent = '保存记录';
   form.elements.date.value = localDateString(new Date());
   // 默认航班编号：自动带航司 IATA 前缀（如 AK），数字部分留空等填
   if (airline.pfx) form.elements.flightNo.value = `${airline.pfx} `;
@@ -577,15 +593,20 @@ function renderFlightRecords() {
   records.forEach((record) => {
     const item = document.createElement('div');
     item.className = 'flight-record';
+    item.title = '点击这条记录可补充/修改航线';
     item.innerHTML = `
       <span class="fr-date">${escapeHtml(record.date || '')}</span>
-      <span class="fr-route">${escapeHtml(record.from)} → ${escapeHtml(record.to)}</span>
-      <span class="fr-no">${escapeHtml(record.flightNo)}</span>
+      <span class="fr-route">${record.from && record.to ? `${escapeHtml(record.from)} → ${escapeHtml(record.to)}` : '<span class="fr-route-empty">仅舱位 · 待补航线</span>'}</span>
+      <span class="fr-no">${escapeHtml(record.flightNo || '')}</span>
       ${record.aircraft ? `<span class="fr-aircraft">${escapeHtml(record.aircraft)}</span>` : ''}
       <span class="fr-cabin ${escapeHtml(record.cabin)}">${cabinText[record.cabin] || '经济舱'}</span>
       <button class="fr-del" type="button" title="删除这条记录">×</button>
     `;
-    item.querySelector('.fr-del').addEventListener('click', () => deleteFlightRecord(record.id));
+    item.querySelector('.fr-del').addEventListener('click', (event) => {
+      event.stopPropagation();
+      deleteFlightRecord(record.id);
+    });
+    item.addEventListener('click', () => editFlightRecord(record.id));
     container.appendChild(item);
   });
 }
@@ -608,7 +629,7 @@ function addFlightRecord(event) {
     return;
   }
 
-  life.records.push({
+  const payload = {
     id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
     airline: life.activeAirline,
     date,
@@ -617,15 +638,50 @@ function addFlightRecord(event) {
     flightNo,
     aircraft,
     cabin,
-  });
+  };
+
+  let saved = false;
+  if (life.editingId) {
+    const index = life.records.findIndex((record) => record.id === life.editingId);
+    if (index !== -1) {
+      payload.id = life.editingId;
+      life.records[index] = payload;
+      saved = true;
+    }
+    life.editingId = null;
+  }
+  if (!saved) life.records.push(payload);
   saveLife();
 
   const airline = AIRLINES.find((item) => item.id === life.activeAirline);
   form.reset();
+  const pickerEl = document.getElementById('flightAirlineSelect');
+  if (pickerEl && life.activeAirline) pickerEl.value = life.activeAirline;  // reset 会重置航司下拉
   form.elements.date.value = date;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.textContent = '保存记录';
   renderFlightRecords();
   renderLifePage();
-  showToast(`已记录 ${airline?.name || ''} ${flightNo} · ${cabinText[cabin]}`, 'ok');
+  showToast(`${saved ? '已更新' : '已记录'} ${airline?.name || ''} ${flightNo} · ${cabinText[cabin]}`, 'ok');
+}
+
+/* ── editFlightRecord ── */
+function editFlightRecord(recordId) {
+  const record = life.records.find((item) => item.id === recordId);
+  if (!record) return;
+  openFlightModal(record.airline);
+  const form = document.getElementById('flightForm');
+  if (!form) return;
+  form.elements.date.value = record.date || '';
+  form.elements.from.value = record.from || '';
+  form.elements.to.value = record.to || '';
+  form.elements.flightNo.value = record.flightNo || '';
+  form.elements.aircraft.value = record.aircraft || '';
+  form.elements.cabin.value = CABIN_ORDER.includes(record.cabin) ? record.cabin : 'economy';
+  life.editingId = recordId;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.textContent = '保存修改';
+  form.elements.from.focus();
 }
 
 /* ── deleteFlightRecord ── */
