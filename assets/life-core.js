@@ -62,7 +62,6 @@ const AIRLINES = [
   { id: 'shanghai',     name: '上海航空',     en: 'Shanghai Airlines',  iata: 'FM', pfx: 'FM', home: '中国·上海' },
   { id: 'cathay',       name: '国泰航空',     en: 'Cathay Pacific',     iata: 'CX', pfx: 'CX', home: '中国香港' },
   { id: 'thai',         name: '泰国国际航空', en: 'Thai Airways',       iata: 'TG', pfx: 'TG', home: '泰国' },
-  { id: 'bangkok',      name: '曼谷航空',     en: 'Bangkok Airways',    iata: 'PG', pfx: 'PG', home: '泰国' },
   { id: 'vietjet',      name: '越捷航空',     en: 'VietJet Air',        iata: 'VJ', pfx: 'VJ', home: '越南' },
   { id: 'vietnam',      name: '越南航空',     en: 'Vietnam Airlines',   iata: 'VN', pfx: 'VN', home: '越南' },
   { id: 'lion',         name: '狮子航空',     en: 'Lion Air',           iata: 'JT', pfx: 'JT', home: '印尼' },
@@ -78,7 +77,6 @@ const AIRLINES = [
   { id: 'citilink',     name: '连城航空',     en: 'Citilink',            iata: 'QG', pfx: 'QG', home: '印尼' },
   { id: 'palexpress',   name: '菲航快运',     en: 'PAL Express',         iata: '2P', pfx: '2P', home: '菲律宾' },
   { id: 'hkexpress',    name: '香港快运',     en: 'HK Express',          iata: 'UO', pfx: 'UO', home: '中国香港' },
-  { id: 'tigerair',     name: '台湾虎航',     en: 'Tigerair Taiwan',     iata: 'IT', pfx: 'IT', home: '中国·台湾' },
   { id: 'royalbrunei',  name: '文莱皇家航空', en: 'Royal Brunei',        iata: 'BI', pfx: 'BI', home: '文莱' },
   { id: 'laoairlines',  name: '老挝航空',     en: 'Lao Airlines',        iata: 'QV', pfx: 'QV', home: '老挝' },
   { id: 'klm',          name: '荷兰皇家航空', en: 'KLM',                 iata: 'KL', pfx: 'KL', home: '荷兰' },
@@ -436,7 +434,7 @@ function renderAirlineGrid() {
         <div class="al-en">${escapeHtml(airline.en)} · ${escapeHtml(airline.home)}</div>
         <div class="al-meta">${escapeHtml(meta)}</div>
       </div>
-      <button class="al-badge ${status}" type="button" title="点一下 = 记一次乘坐：经济舱 → 超级经济舱 → 商务舱 → 头等舱">${airlineStatusText[status]}</button>
+      <button class="al-badge ${status}" type="button" title="点击编辑该航司的乘坐记录">${airlineStatusText[status]}</button>
     `;
 
     card.addEventListener('click', () => {
@@ -457,47 +455,12 @@ function renderAirlineGrid() {
     });
     card.querySelector('.al-badge').addEventListener('click', (event) => {
       event.stopPropagation();
-      // 徽章 = 切换乘坐状态（点亮）：无记录循环切换 未乘坐→经济→超经→商务→头等；有记录自动推导并打开弹窗
-      cycleAirlineStatus(airline.id);
+      // 徽章 = 打开该航司的记录弹窗：可编辑已有记录 / 补录一次新的乘坐
+      openFlightModal(airline.id);
     });
     grid.appendChild(card);
   });
   });
-}
-
-/* ── cycleAirlineStatus ──
-   点徽章 = 真的新增一条乘坐记录（不是只改个颜色）：
-   档位沿 经济 → 超经 → 商务 → 头等 递进，每点一次写入一条 life.records，
-   航司亮度由所有记录里的最高舱位决定。快速记录不带航线（仅舱位点亮），
-   之后可在「＋ 记录航班」弹窗里补完整航线。*/
-function cycleAirlineStatus(airlineId) {
-  const airline = AIRLINES.find((item) => item.id === airlineId);
-  if (!airline) return;
-
-  const current = airlineStatus(airlineId);
-  const nextIndex = current === 'none' ? 0 : CABIN_ORDER.indexOf(current) + 1;
-
-  if (nextIndex >= CABIN_ORDER.length) {
-    showToast(`${airline.name} 已是最高档 · 打开弹窗可补充航线`, 'info');
-    openFlightModal(airlineId);
-    return;
-  }
-
-  const cabin = CABIN_ORDER[nextIndex];
-  life.records.push({
-    id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
-    airline: airlineId,
-    date: localDateString(new Date()),
-    from: '',
-    to: '',
-    flightNo: '',
-    aircraft: '',
-    cabin,
-    quick: true,
-  });
-  saveLife();
-  renderLifePage();
-  showToast(`${airline.name} · 新增 1 次${cabinText[cabin]}乘坐`, 'ok');
 }
 
 /* ── renderRecentFlights ── */
@@ -571,6 +534,9 @@ function openFlightModal(airlineId) {
   if (airline.pfx) form.elements.flightNo.value = `${airline.pfx} `;
   renderFlightRecords();
   document.getElementById('flightModal').classList.remove('hidden');
+  // 只有一条记录时直接进入编辑态：点徽章就能改这条，不用再去列表里点一次
+  const ownRecords = airlineRecords(airline.id);
+  if (ownRecords.length === 1) fillFlightForm(ownRecords[0]);
 }
 
 /* ── closeFlightModal ── */
@@ -669,22 +635,32 @@ function addFlightRecord(event) {
 }
 
 /* ── editFlightRecord ── */
-function editFlightRecord(recordId) {
-  const record = life.records.find((item) => item.id === recordId);
-  if (!record) return;
-  openFlightModal(record.airline);
+/* ── fillFlightForm：把一条记录填进表单，进入「编辑」态 ── */
+function fillFlightForm(record) {
   const form = document.getElementById('flightForm');
-  if (!form) return;
+  if (!form || !record) return;
   form.elements.date.value = record.date || '';
   form.elements.from.value = record.from || '';
   form.elements.to.value = record.to || '';
   form.elements.flightNo.value = record.flightNo || '';
   form.elements.aircraft.value = record.aircraft || '';
   form.elements.cabin.value = CABIN_ORDER.includes(record.cabin) ? record.cabin : 'economy';
-  life.editingId = recordId;
+  life.editingId = record.id;
   const submitBtn = form.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.textContent = '保存修改';
-  form.elements.from.focus();
+}
+
+/* ── editFlightRecord ── */
+function editFlightRecord(recordId) {
+  const record = life.records.find((item) => item.id === recordId);
+  if (!record) return;
+  const picker = document.getElementById('flightAirlineSelect');
+  if (!picker || picker.value !== record.airline || document.getElementById('flightModal').classList.contains('hidden')) {
+    openFlightModal(record.airline);
+  }
+  fillFlightForm(record);
+  const form = document.getElementById('flightForm');
+  if (form) form.elements.from.focus();
 }
 
 /* ── deleteFlightRecord ── */
