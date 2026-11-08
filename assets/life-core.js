@@ -51,7 +51,7 @@ function icon(name, size = 16) {
 
 /* ── AIRLINES ── */
 const AIRLINES = [
-  { id: 'airasia',      name: '亚航',         en: 'AirAsia',            iata: 'AK', pfx: 'AK', home: '马来西亚' },
+  { id: 'airasia',      name: '亚洲航空',     en: 'AirAsia',            iata: 'AK', pfx: 'AK', home: '马来西亚' },
   { id: 'scoot',        name: '酷航',         en: 'Scoot',              iata: 'TR', pfx: 'TR', home: '新加坡' },
   { id: 'malaysia',     name: '马来西亚航空', en: 'Malaysia Airlines',  iata: 'MH', pfx: 'MH', home: '马来西亚' },
   { id: 'singapore',    name: '新加坡航空',   en: 'Singapore Airlines', iata: 'SQ', pfx: 'SQ', home: '新加坡' },
@@ -75,7 +75,7 @@ const AIRLINES = [
   { id: 'transnusa',    name: '翎亚航空',     en: 'TransNusa',           iata: '8B', pfx: '8B', home: '印尼' },
   { id: 'firefly',      name: '飞萤航空',     en: 'Firefly',             iata: 'FY', pfx: 'FY', home: '马来西亚' },
   { id: 'citilink',     name: '连城航空',     en: 'Citilink',            iata: 'QG', pfx: 'QG', home: '印尼' },
-  { id: 'palexpress',   name: '菲航快运',     en: 'PAL Express',         iata: '2P', pfx: '2P', home: '菲律宾' },
+  { id: 'palexpress',   name: '菲律宾航空快运', en: 'PAL Express',       iata: '2P', pfx: '2P', home: '菲律宾' },
   { id: 'hkexpress',    name: '香港快运',     en: 'HK Express',          iata: 'UO', pfx: 'UO', home: '中国香港' },
   { id: 'royalbrunei',  name: '文莱皇家航空', en: 'Royal Brunei',        iata: 'BI', pfx: 'BI', home: '文莱' },
   { id: 'laoairlines',  name: '老挝航空',     en: 'Lao Airlines',        iata: 'QV', pfx: 'QV', home: '老挝' },
